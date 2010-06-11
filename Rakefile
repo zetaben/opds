@@ -5,8 +5,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "opds"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{ruby lib to read OPDS feeds}
+    gem.description = %Q{ruby lib to access OPDS feeds}
     gem.email = "zeta.ben@gmail.com"
     gem.homepage = "http://github.com/zetaben/opds"
     gem.authors = ["Benoit Larroque"]

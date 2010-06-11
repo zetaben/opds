@@ -1,0 +1,1 @@
+require 'opds/opds'
