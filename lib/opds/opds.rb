@@ -1,2 +1,2 @@
-class OPDS
+module OPDS
 end
