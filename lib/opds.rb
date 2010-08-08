@@ -1,2 +1,4 @@
 require 'opds/opds'
-require 'opds/support/browser.rb'
+require 'opds/support/logging'
+require 'opds/support/browser'
+require 'opds/parser'

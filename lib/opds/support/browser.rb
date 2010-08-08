@@ -2,6 +2,7 @@ require "open-uri"
 module OPDS
 	module Support
 		class Browser
+			include Logging
 			def go_to(uri)
 				url=URI.parse(uri)
 				@last_response=nil
@@ -13,7 +14,7 @@ module OPDS
 					@last_response = http.request(req)
 				}
 			if status/10==30 && headers['location']
-			   STDERR.puts("Following redirection (code: #{status}) to #{headers['location']}")
+			   log("Following redirection (code: #{status}) to #{headers['location']}")
 			   go_to(headers['location'].first)
 			end
 			end
@@ -32,7 +33,7 @@ module OPDS
 			end
 
 			def body
-			 @last_response.body
+			 @last_response.body if @last_response
 			end
 
 		end
