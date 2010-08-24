@@ -48,16 +48,16 @@ module OPDS
 		#read xml entries into entry struct
 		def serialize!
 			@entries=raw_doc.xpath('/xmlns:feed/xmlns:entry',raw_doc.root.namespaces).map do |el|
-				OPDS::Entry.from_nokogiri(el)
+				OPDS::Entry.from_nokogiri(el,raw_doc.root.namespaces)
 			end
 		end
 
 		def title
-			raw_doc.at('/xmlns:feed/xmlns:title',raw_doc.root.namespaces).text
+			text(raw_doc.at('/xmlns:feed/xmlns:title',raw_doc.root.namespaces))
 		end
 
 		def icon
-			raw_doc.at('/xmlns:feed/xmlns:icon',raw_doc.root.namespaces).text
+			text(raw_doc.at('/xmlns:feed/xmlns:icon',raw_doc.root.namespaces))
 		end
 
 		def links
@@ -81,14 +81,14 @@ module OPDS
 		end
 
 		def id
-			raw_doc.at('/xmlns:feed/xmlns:id',raw_doc.root.namespaces).text
+			text(raw_doc.at('/xmlns:feed/xmlns:id',raw_doc.root.namespaces))
 		end
 		
 		def author
 			{
-			:name => raw_doc.at('/xmlns:feed/xmlns:author/xmlns:name',raw_doc.root.namespaces).text,
-			:uri => raw_doc.at('/xmlns:feed/xmlns:author/xmlns:uri',raw_doc.root.namespaces).text,
-			:email => raw_doc.at('/xmlns:feed/xmlns:author/xmlns:email',raw_doc.root.namespaces).text
+			:name => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:name',raw_doc.root.namespaces)),
+			:uri => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:uri',raw_doc.root.namespaces)),
+			:email => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:email',raw_doc.root.namespaces))
 			}
 		end
 
@@ -119,6 +119,12 @@ module OPDS
 		
 		def prev_page
 			Feed.parse_url(prev_page_url,@browser)
+		end
+
+		protected
+		def text(t)
+			return t.text unless t.nil?
+			t
 		end
 
 	end

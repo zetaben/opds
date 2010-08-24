@@ -47,6 +47,7 @@ describe OPDS::OPDSParser do
 		it "should have entries" do 
 			subject.parse(sample(feed_type)).entries.size.should_not be(0)
 		end
+		
 
 		
 	end
@@ -57,6 +58,10 @@ describe OPDS::OPDSParser do
 		
 		it do
 			subject.parse(sample(:acquisition)).should be_first_page()
+		end
+		
+		it "should have partial entries" do 
+			subject.parse(sample(:acquisition)).entries.any?(&:partial?).should be()
 		end
 		
 		it do

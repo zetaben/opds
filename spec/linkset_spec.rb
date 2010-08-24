@@ -2,9 +2,9 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe OPDS::Support::LinkSet do 
 	before(:each) do 
-		subject.push('root','http://feedbooks.com','Racine')
-		subject.push('subsection','http://feedbooks.com/publicdomain','Domaine pub')
-		subject.push('subsection','http://feedbooks.com/original','Original')
+		subject.push('root','http://feedbooks.com','Racine','application/atom+xml')
+		subject.push('subsection','http://feedbooks.com/publicdomain','Domaine pub','application/atom+xml')
+		subject.push('subsection','http://feedbooks.com/original','Original','application/atom+xml')
 		subject.push('subsection','http://feedbooks.com/feed','feeds')
 		subject.push('http://opds-spec.org/shelf','http://feedbooks.com/shelf','shelf')
 		subject.push('related','http://feedbooks.com/shelf',nil)
