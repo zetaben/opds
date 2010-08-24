@@ -12,8 +12,13 @@ module OPDS
 		def parse(content)
 			@ret=Nokogiri::XML(content)
 			@sniffed_type=sniff(@ret)
-			@ret
+			case @sniffed_type
+			when :acquisition then return OPDS::AcquisitionFeed.from_nokogiri(@ret)
+			when :navigation then return OPDS::NavigationFeed.from_nokogiri(@ret)
+			when :entry then return OPDS::Entry.from_nokogiri(@ret)
+			end
 		end
+
 		protected 
 		def sniff(doc)
 			return :entry if doc.root.name=='entry'

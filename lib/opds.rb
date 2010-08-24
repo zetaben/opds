@@ -1,4 +1,10 @@
 require 'opds/opds'
 require 'opds/support/logging'
 require 'opds/support/browser'
+require 'opds/support/linkset'
 require 'opds/parser'
+
+require 'opds/feed'
+require 'opds/entry'
+require 'opds/acquisition_feed'
+require 'opds/navigation_feed'
