@@ -1,8 +1,18 @@
 module OPDS
 	module Support
+		class Link < Array
+			attr_accessor :browser
+
+			def navigate
+			Feed.parse_url(self[1],browser)
+			end
+		end
+	
+
 		class LinkSet 
 			include Enumerable
-			def initialize
+			def initialize(browser=OPDS::Support::Browser.new)
+				@browser=browser
 				@rel_store=Hash.new
 				@txt_store=Hash.new
 				@lnk_store=Hash.new
@@ -11,7 +21,9 @@ module OPDS
 			end
 
 			def []=(k,v)
-				@store.push [k]+v
+				link=Link.new([k]+v)
+				link.browser=@browser
+				@store.push link
 				i=@store.size-1
 				@rel_store[k]=[] unless @rel_store[k]
 				@rel_store[k].push i

@@ -4,11 +4,17 @@ module OPDS
 		attr_reader :raw_doc
 		attr_reader :title
 		attr_reader :id
-		attr_reader :updated_at
+		attr_reader :updated
+		attr_reader :published
 		attr_reader :summary
 		attr_reader :authors
 		attr_reader :links
 		attr_reader :dcmetas
+		attr_reader :categories
+		attr_reader :content
+		attr_reader :rights
+		attr_reader :subtitle
+
 		def self.from_nokogiri(content,namespaces=nil)
 			z=self.new
 			z.instance_variable_set('@raw_doc',content)
@@ -26,7 +32,9 @@ module OPDS
 			@id=text(raw_doc.at('./xmlns:id',@namespaces))
 			@summary=text(raw_doc.at('./xmlns:summary',@namespaces))
 			d=text(raw_doc.at('./xmlns:updated',@namespaces))
-			@updated_at=DateTime.parse(d) unless d.nil?
+			@updated=DateTime.parse(d) unless d.nil?
+			d=text(raw_doc.at('./xmlns:published',@namespaces))
+			@published=DateTime.parse(d) unless d.nil?
 
 			@authors=raw_doc.xpath('./xmlns:author',@namespaces).collect do |auth|
 				{
@@ -59,6 +67,23 @@ module OPDS
 				end
 			end
 
+			@categories=raw_doc.xpath('./xmlns:category',@namespaces).collect do |n|
+				[text(n.attributes['label']),text(n.attributes['term'])]
+			end
+
+			@content=raw_doc.at('./xmlns:content',@namespaces).to_s
+			
+			@contributors=raw_doc.xpath('./xmlns:contributor',@namespaces).collect do |auth|
+				{
+					:name => text(raw_doc.at('./xmlns:contributor/xmlns:name',@namespaces)),
+					:uri => text(raw_doc.at('./xmlns:contributor/xmlns:uri',@namespaces)),
+					:email => text(raw_doc.at('./xmlns:contributor/xmlns:email',@namespaces))
+				}
+			end
+
+			@rights=text(raw_doc.at('./xmlns:rights',@namespaces))
+			@subtitle=text(raw_doc.at('./xmlns:rights',@namespaces))
+
 		end
 
 
@@ -73,9 +98,16 @@ module OPDS
 		end
 
 		def complete_url
-			links.by(:rel)['alternate'].any? do |l|
-				l[3]=='application/atom+xml'
+			links.by(:rel)['alternate'].find do |l|
+				l[3]=='application/atom+xml;type=entry'||l[3]=='application/atom+xml'
 			end unless !partial?
+		end
+
+		def acquisition_links
+			rel_start='http://opds-spec.org/acquisition'
+			[*links.by(:rel).reject do |k,_|
+				k[0,rel_start.size]!=rel_start unless k.nil?
+			end.values]
 		end
 
 		protected 

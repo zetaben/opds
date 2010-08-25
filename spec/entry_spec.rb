@@ -24,7 +24,7 @@ describe OPDS::Entry do
 	end
 	
 	it "should have a update date "do
-			subject.updated_at.day.should be(13)
+			subject.updated.day.should be(13)
 	end
 	
 	it "should have an author "do
@@ -38,6 +38,11 @@ describe OPDS::Entry do
 	it "should have dc:meta" do
 
 			subject.dcmetas.size.should_not be(0)
+	end
+	
+	it "should have categories" do
+
+			subject.categories.size.should_not be(0)
 	end
 	
 	it "should not be partial" do
