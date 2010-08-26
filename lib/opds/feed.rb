@@ -25,7 +25,19 @@ module OPDS
 			@browser||=OPDS::Support::Browser.new
 			@browser.go_to(url)
 			if @browser.ok?
-				return self.parse_raw(@browser.body,parser_opts)
+				parsed = self.parse_raw(@browser.body,parser_opts) 
+				if parsed.nil?
+					disco=@browser.discover(@browser.current_location)
+					if disco.size > 0
+						d=disco[nil]
+						d||=disco['related']
+						d||=disco
+						return d.first.navigate
+					end
+					return false
+				else
+					return  parsed
+				end
 			else
 				return false
 			end
@@ -35,7 +47,8 @@ module OPDS
 			parser=OPDSParser.new(opts)
 			pfeed=parser.parse(txt)
 			type=parser.sniffed_type
-			return pfeed
+			return pfeed unless type.nil?
+			nil
 		end
 
 		def self.from_nokogiri(content)
@@ -83,20 +96,20 @@ module OPDS
 		def id
 			text(raw_doc.at('/xmlns:feed/xmlns:id',raw_doc.root.namespaces))
 		end
-		
+
 		def author
 			{
-			:name => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:name',raw_doc.root.namespaces)),
-			:uri => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:uri',raw_doc.root.namespaces)),
-			:email => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:email',raw_doc.root.namespaces))
+				:name => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:name',raw_doc.root.namespaces)),
+				:uri => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:uri',raw_doc.root.namespaces)),
+				:email => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:email',raw_doc.root.namespaces))
 			}
 		end
 
-			
+
 		def next_page_url
 			links.link_url(:rel => 'next')
 		end
-		
+
 		def prev_page_url
 			links.link_url(:rel => 'prev')
 		end
@@ -116,7 +129,7 @@ module OPDS
 		def next_page
 			Feed.parse_url(next_page_url,@browser)
 		end
-		
+
 		def prev_page
 			Feed.parse_url(prev_page_url,@browser)
 		end

@@ -1,7 +1,17 @@
+require 'open-uri'
 module OPDS
 	module Support
 		class Link < Array
+			include Logging
 			attr_accessor :browser
+
+			def initialize(array,browser=OPDS::Support::Browser.new) 
+				@browser=browser
+					unless browser.current_location.nil?
+						array[1]=URI.join(browser.current_location,array[1]).to_s
+					end
+				super array
+			end
 
 			def navigate
 			Feed.parse_url(self[1],browser)
@@ -21,8 +31,7 @@ module OPDS
 			end
 
 			def []=(k,v)
-				link=Link.new([k]+v)
-				link.browser=@browser
+				link=Link.new([k]+v,@browser)
 				@store.push link
 				i=@store.size-1
 				@rel_store[k]=[] unless @rel_store[k]
