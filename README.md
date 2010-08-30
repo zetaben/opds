@@ -1,17 +1,32 @@
-= opds
+OPDS Parsing library
+====================
 
-Description goes here.
+This gem provides a parsing library for [OPDS Catalogs](http://opds-spec.org).
 
-== Note on Patches/Pull Requests
- 
-* Fork the project.
-* Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
+It also has the ability to discover catalogs in html feeds.
 
-== Copyright
+Installation
+------------
 
-Copyright (c) 2010 Benoit Larroque. See LICENSE for details.
+	gem install opds
+
+
+Usage
+-----
+
+Parsing a feed is simply done. 
+
+	require "opds"
+	OPDS::Feed.parse_url("http://catalog.com/catalog.atom")
+
+This method will return an instance of the Feed or Entry classes. Each Atom element is accessible directly via a dedicated method (ex: `feed.title`). Entry also provides a method to directly access any embeded Dublin Core metadata (`dcmeta`). The `raw_doc` attribute gives access to the Nokogiri parsed source.
+
+### Complete atom entries ###
+
+Complete atom entries are available if detected as another instance of the Entry class. Just call `entry.complete` on the partial entry to access it.
+
+### Links ###
+
+Every links are automatically parsed in feeds and entries. They are made available in a collection called `links`. Relative links should be transformed in their absolute equivalent. On each link there is a `navigate` method which will proxy a call to OPDS::Feed.parse_url.
+
+
