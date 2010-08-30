@@ -9,13 +9,13 @@ module OPDS
 			self.options=opts.merge({})
 		end
 
-		def parse(content)
+		def parse(content,browser=nil)
 			@ret=Nokogiri::XML(content)
 			@sniffed_type=sniff(@ret)
 			case @sniffed_type
-			when :acquisition then return OPDS::AcquisitionFeed.from_nokogiri(@ret)
-			when :navigation then return OPDS::NavigationFeed.from_nokogiri(@ret)
-			when :entry then return OPDS::Entry.from_nokogiri(@ret)
+			when :acquisition then return OPDS::AcquisitionFeed.from_nokogiri(@ret,browser)
+			when :navigation then return OPDS::NavigationFeed.from_nokogiri(@ret,browser)
+			when :entry then return OPDS::Entry.from_nokogiri(@ret,browser)
 			end
 		end
 
@@ -37,6 +37,8 @@ module OPDS
 				return :navigation
 			end
 			return nil
+		rescue 
+			nil
 		end
 
 	end

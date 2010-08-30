@@ -25,13 +25,14 @@ module OPDS
 			@browser||=OPDS::Support::Browser.new
 			@browser.go_to(url)
 			if @browser.ok?
-				parsed = self.parse_raw(@browser.body,parser_opts) 
+				parsed = self.parse_raw(@browser.body,parser_opts,browser) 
 				if parsed.nil?
 					disco=@browser.discover(@browser.current_location)
 					if disco.size > 0
 						d=disco[nil]
 						d||=disco['related']
 						d||=disco
+						Logging.log("Discovered : #{d.first.url}")
 						return d.first.navigate
 					end
 					return false
@@ -43,16 +44,16 @@ module OPDS
 			end
 		end
 
-		def self.parse_raw(txt,opts={})
+		def self.parse_raw(txt,opts={},browser=nil)
 			parser=OPDSParser.new(opts)
-			pfeed=parser.parse(txt)
+			pfeed=parser.parse(txt,browser)
 			type=parser.sniffed_type
 			return pfeed unless type.nil?
 			nil
 		end
 
-		def self.from_nokogiri(content)
-			z=self.new
+		def self.from_nokogiri(content,browser=nil)
+			z=self.new browser
 			z.instance_variable_set('@raw_doc',content)
 			z.serialize!
 			z
@@ -61,7 +62,7 @@ module OPDS
 		#read xml entries into entry struct
 		def serialize!
 			@entries=raw_doc.xpath('/xmlns:feed/xmlns:entry',raw_doc.root.namespaces).map do |el|
-				OPDS::Entry.from_nokogiri(el,raw_doc.root.namespaces)
+				OPDS::Entry.from_nokogiri(el,raw_doc.root.namespaces,@browser)
 			end
 		end
 
@@ -75,7 +76,7 @@ module OPDS
 
 		def links
 			if !@links || @links.size ==0
-				@links=OPDS::Support::LinkSet.new
+				@links=OPDS::Support::LinkSet.new @browser
 				raw_doc.xpath('/xmlns:feed/xmlns:link',raw_doc.root.namespaces).each do |n|
 					text=nil
 					text=n.attributes['title'].value unless n.attributes['title'].nil?
@@ -132,6 +133,10 @@ module OPDS
 
 		def prev_page
 			Feed.parse_url(prev_page_url,@browser)
+		end
+
+		def inspect
+			"#<#{self.class}:0x#{self.object_id.abs.to_s(16)} entries(count):#{@entries.size} #{instance_variables.reject{|e| e=='@raw_doc'||e=='@entries' }.collect{|e| "#{e}=#{instance_variable_get(e).inspect}"}.join(' ')} >"
 		end
 
 		protected

@@ -4,7 +4,7 @@ module OPDS
 		class Browser
 			include Logging
 			def go_to(uri)
-				log(uri)
+				log("Accessing #{uri}")
 				url=URI.parse(uri)
 				@last_response=nil
 				Net::HTTP.start(url.host,url.port) {|http|

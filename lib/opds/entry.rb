@@ -15,8 +15,14 @@ module OPDS
 		attr_reader :rights
 		attr_reader :subtitle
 
-		def self.from_nokogiri(content,namespaces=nil)
-			z=self.new
+		def initialize(browser=nil)
+			@browser=browser
+			@browser||=OPDS::Support::Browser.new
+		end
+
+
+		def self.from_nokogiri(content,namespaces=nil, browser=nil)
+			z=self.new browser
 			z.instance_variable_set('@raw_doc',content)
 			z.instance_variable_set('@namespaces',namespaces)
 			z.serialize!
@@ -44,7 +50,7 @@ module OPDS
 				}
 			end
 
-			@links=OPDS::Support::LinkSet.new
+			@links=OPDS::Support::LinkSet.new @browser
 			raw_doc.xpath('./xmlns:link',@namespaces).each do |n|
 				text=nil
 				text=n.attributes['title'].value unless n.attributes['title'].nil?
@@ -108,6 +114,10 @@ module OPDS
 			[*links.by(:rel).reject do |k,_|
 				k[0,rel_start.size]!=rel_start unless k.nil?
 			end.values]
+		end
+		
+		def inspect
+			"#<#{self.class}:0x#{self.object_id.abs.to_s(16)} #{instance_variables.reject{|e| e=='@raw_doc' }.collect{|e| "#{e}=#{instance_variable_get(e).inspect}"}.join(' ')} >"
 		end
 
 		protected 

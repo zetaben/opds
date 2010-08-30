@@ -16,6 +16,27 @@ module OPDS
 			def navigate
 			Feed.parse_url(self[1],browser)
 			end
+
+			def inspect
+				"[#{self.map{|e| (e.is_a?(String) && e.size > 100 ? "#{e[0..98]}...".inspect: e.inspect ) }.join(', ')}]"
+			end
+
+			def url
+				self[1]
+			end
+			
+			def rel
+				self[0]
+			end
+			
+			def title
+				self[2]
+			end
+			
+			def type
+				self[3]
+			end
+
 		end
 	
 
@@ -99,6 +120,18 @@ module OPDS
 			
 			def texts
 				@txt_store.keys
+			end
+		
+			def inspect
+				@store.inspect
+			end
+
+			def first 
+				@store.first
+			end
+			
+			def first 
+				@store.last
 			end
 
 			protected 
