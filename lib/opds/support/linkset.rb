@@ -36,6 +36,14 @@ module OPDS
 			def type
 				self[3]
 			end
+			
+			def price
+				self[4]
+			end
+			
+			def currency
+				self[5]
+			end
 
 		end
 	
@@ -74,8 +82,10 @@ module OPDS
 				@store.each(&block)
 			end
 
-			def push(rel,link,text=nil,type=nil)
-				self[rel]=[link,text,type]
+			def push(rel,link,text=nil,type=nil, price=nil, currency=nil)
+				tab=[link,text,type]
+				tab+=[price.to_f,currency] unless price.nil?
+				self[rel]=tab
 			end
 
 			def link_url(k)

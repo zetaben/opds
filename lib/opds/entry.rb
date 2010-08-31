@@ -56,12 +56,20 @@ module OPDS
 				text=n.attributes['title'].value unless n.attributes['title'].nil?
 				link=n.attributes['href'].value
 				type=n.attributes['type'].value unless n.attributes['type'].nil?
+				price=nil
+				currency=nil
+				oprice=n.at('./opds:price',@namespaces)
+				if oprice
+					price=text(oprice)
+					currency=oprice.attributes['currencycode'].value unless oprice.attributes['currencycode'].nil?
+				end
+
 				unless n.attributes['rel'].nil?
 					n.attributes['rel'].value.split.each do |rel|
-						@links.push(rel,link,text,type)
+						@links.push(rel,link,text,type,price,currency)
 					end
 				else
-					@links.push(nil,link,text,type)
+					@links.push(nil,link,text,type,price,currency)
 				end
 			end
 			@dcmetas=Hash.new
