@@ -58,6 +58,7 @@ module OPDS
 				type=n.attributes['type'].value unless n.attributes['type'].nil?
 				price=nil
 				currency=nil
+				@namespaces['opds']||='http://opds-spec.org/2010/catalog'
 				oprice=n.at('./opds:price',@namespaces)
 				if oprice
 					price=text(oprice)
