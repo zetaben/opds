@@ -140,7 +140,7 @@ module OPDS
 				@store.first
 			end
 			
-			def first 
+			def last
 				@store.last
 			end
 
