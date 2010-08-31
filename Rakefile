@@ -7,7 +7,7 @@ begin
     gem.name = "opds"
     gem.summary = %Q{ruby lib to read OPDS feeds}
     gem.description = %Q{ruby lib to access OPDS feeds}
-    gem.email = "zeta.ben@gmail.com"
+    gem.email = "benoit dot larroque at feedbooks dot com"
     gem.homepage = "http://github.com/zetaben/opds"
     gem.authors = ["Benoit Larroque"]
     gem.add_development_dependency "rspec", ">= 1.2.9"

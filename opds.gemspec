@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{opds}
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Benoit Larroque"]
-  s.date = %q{2010-08-30}
+  s.date = %q{2010-08-31}
   s.description = %q{ruby lib to access OPDS feeds}
   s.email = %q{benoit dot larroque at feedbooks dot com}
   s.extra_rdoc_files = [
@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
      "lib/opds/support/browser.rb",
      "lib/opds/support/linkset.rb",
      "lib/opds/support/logging.rb",
+     "opds.gemspec",
      "samples/acquisition.txt",
      "samples/entry.txt",
      "samples/navigation.txt",
