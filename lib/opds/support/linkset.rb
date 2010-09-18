@@ -88,6 +88,10 @@ module OPDS
 				self[rel]=tab
 			end
 
+			def push_link(link)
+				@store.push link if link.is_a?Link
+			end
+
 			def link_url(k)
 				ty,v=k.first
 				t=remap(collection(ty)[v])
@@ -142,6 +146,10 @@ module OPDS
 			
 			def last
 				@store.last
+			end
+
+			def to_yaml
+				@store.to_yaml
 			end
 
 			protected 
