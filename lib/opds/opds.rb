@@ -1,3 +1,4 @@
+# Module containing the whole OPDS parsing library
 module OPDS
 	# Convinience call to Feed.parse_url
 	# @see Feed.parse_url

@@ -53,7 +53,7 @@ module OPDS
 			end
 
 			# Try to discover catalog links at the given url
-			# @params [String] url to search
+			# @param [String] url to search
 			# @return [OPDS::Support::LinkSet, false] discovered links
 			def discover(url)
 				go_to(url)
