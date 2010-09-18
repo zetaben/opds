@@ -45,7 +45,7 @@ module OPDS
 		# @param namespaces Associated document namespaces
 		# @param browser (see Feed.parse_url)
 		# @return [Entry]
-		def self.from_nokogiri(content,namespaces=nil, browser=nil)
+		def self.from_nokogiri(content,namespaces=nil, browser=OPDS::Support::Browser.new)
 			z=self.new browser
 			z.instance_variable_set('@raw_doc',content)
 			z.instance_variable_set('@namespaces',namespaces)
