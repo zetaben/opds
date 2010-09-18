@@ -17,9 +17,11 @@ Usage
 Parsing a feed is simply done. 
 
 	require "opds"
-	OPDS::Feed.parse_url("http://catalog.com/catalog.atom")
+	OPDS.access("http://catalog.com/catalog.atom")
 
 This method will return an instance of the Feed or Entry classes. Each Atom element is accessible directly via a dedicated method (ex: `feed.title`). Entry also provides a method to directly access any embeded Dublin Core metadata (`dcmeta`). The `raw_doc` attribute gives access to the Nokogiri parsed source.
+
+API documentation can be found on [rdoc.info](http://rdoc.info/github/zetaben/opds/master/frames)
 
 ### Complete atom entries ###
 
