@@ -1,8 +1,13 @@
 require "open-uri"
 module OPDS
+	# Supporting classes 
 	module Support
+		# Browser class, it will be used to access the Internet.
+		# Currently based on open-uri only
 		class Browser
 			include Logging
+			# Navigate to the provided uri
+			# @param uri [String] uri to go to
 			def go_to(uri)
 				log("Accessing #{uri}")
 				url=URI.parse(uri)
@@ -21,27 +26,35 @@ module OPDS
 				end
 			end
 
+			# Last page load was ok ?
+			# @return [boolean]
 			def ok?
 				status==200
 			end
 
-
+			# @return [integer] Last page load return code
 			def status
 				@last_response.code.to_i if @last_response
 			end
 
+			# @return [Hash] Last page HTTP headers
 			def headers
 				@last_response.to_hash if @last_response
 			end
 
+			# @return [String] Last page body
 			def body
 				@last_response.body if @last_response
 			end
 
+			# @return [String] current uri
 			def current_location
 				@current_location
 			end
 
+			# Try to discover catalog links at the given url
+			# @params [String] url to search
+			# @return [OPDS::Support::LinkSet, false] discovered links
 			def discover(url)
 				go_to(url)
 				if ok?
@@ -59,6 +72,7 @@ module OPDS
 			end
 
 			private 
+			# extracts linkset from doc + xpath expression
 			def extract_links(tab,doc, expr)
 				doc.xpath(expr).each do |n|
 					text=nil

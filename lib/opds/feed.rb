@@ -1,7 +1,16 @@
 module OPDS
+	# Feed class is used as an ancestor to NavigationFeed and AcquisitionFeed it handles
+	# all the parsing
+	# @abstract Not really abstract as it's full fledged, but it should not be used directly
 	class Feed
 		include Logging
+		# "Raw" Nokogiri document used while parsing.
+		# It might useful to access atom foreign markup
+		# @return [Nokogiri::XML::Document] Parsed document
 		attr_reader :raw_doc
+		# Entry list
+		# @see Entry
+		# @return [Array<Entry>] list of parsed entries
 		attr_reader :entries
 
 
@@ -9,7 +18,7 @@ module OPDS
 			@browser=browser
 			@browser||=OPDS::Support::Browser.new
 		end
-
+=begin
 		# access root catalog
 		def root
 			return @root unless root?
@@ -19,10 +28,23 @@ module OPDS
 		# root catalog predicate
 		def root?
 		end
+=end
 
-		def self.parse_url(url,browser=nil,parser_opts={})
+
+		# Parse the given url.
+		#
+		# If the resource at the give url is not an OPDS Catalog, this method will 
+		# try to find a linked catalog.
+		# If many are available it will take the first one with a priority given to 
+		# nil rel or rel="related" catalogs.
+		#
+		# @param url [String] url to parse
+		# @param browser (see Feed.parse_raw)
+		# @param parser_opts parser options (unused at the moment)
+		# @see OPDS::Support::Browser
+		# @return [AcquisitionFeed,NavigationFeed, Entry, nil] an instance of a parsed feed, entry or nil
+		def self.parse_url(url,browser=OPDS::Support::Browser.new,parser_opts={})
 			@browser=browser
-			@browser||=OPDS::Support::Browser.new
 			@browser.go_to(url)
 			if @browser.ok?
 				parsed = self.parse_raw(@browser.body,parser_opts,browser) 
@@ -44,6 +66,12 @@ module OPDS
 			end
 		end
 
+		# Will parse a text stream as an OPDS Catalog, internaly used by #parse_url
+		#
+		# @param txt [String] text to parse
+		# @param opts [Hash] options to pass to the parser
+		# @param browser [OPDS::Support::Browser] an optional compatible browser to use
+		# @return [AcquisitionFeed,NavigationFeed] an instance of a parsed feed or nil
 		def self.parse_raw(txt,opts={},browser=nil)
 			parser=OPDSParser.new(opts)
 			pfeed=parser.parse(txt,browser)
@@ -52,6 +80,11 @@ module OPDS
 			nil
 		end
 
+		
+		# Create a feed from a nokogiri document
+		# @param content [Nokogiri::XML::Document] nokogiri document
+		# @param browser (see Feed.parse_url)
+		# @return [Feed] new feed
 		def self.from_nokogiri(content,browser=nil)
 			z=self.new browser
 			z.instance_variable_set('@raw_doc',content)
@@ -59,21 +92,27 @@ module OPDS
 			z
 		end
 
-		#read xml entries into entry struct
+		# @private
+		# read xml entries into the entry list struct
+		# @todo really make private
 		def serialize!
 			@entries=raw_doc.xpath('/xmlns:feed/xmlns:entry',raw_doc.root.namespaces).map do |el|
 				OPDS::Entry.from_nokogiri(el,raw_doc.root.namespaces,@browser)
 			end
 		end
 
+		
+		# @return [String] Feed title
 		def title
 			text(raw_doc.at('/xmlns:feed/xmlns:title',raw_doc.root.namespaces))
 		end
 
+		# @return [String] Feed icon definition
 		def icon
 			text(raw_doc.at('/xmlns:feed/xmlns:icon',raw_doc.root.namespaces))
 		end
 
+		# @return [OPDS::Support::LinkSet] Set with atom feed level links
 		def links
 			if !@links || @links.size ==0
 				@links=OPDS::Support::LinkSet.new @browser
@@ -95,10 +134,12 @@ module OPDS
 			@links
 		end
 
+		# @return [String] Feed id
 		def id
 			text(raw_doc.at('/xmlns:feed/xmlns:id',raw_doc.root.namespaces))
 		end
 
+		# @return [Hash] Feed author (keys : name,uri,email)
 		def author
 			{
 				:name => text(raw_doc.at('/xmlns:feed/xmlns:author/xmlns:name',raw_doc.root.namespaces)),
@@ -107,31 +148,42 @@ module OPDS
 			}
 		end
 
-
+		# @return [String] Next page url
 		def next_page_url
 			links.link_url(:rel => 'next')
 		end
 
+		# @return [String] Previous page url
 		def prev_page_url
 			links.link_url(:rel => 'prev')
 		end
 
+		# Is the feed paginated ?
+		# @return Boolean
 		def paginated?
 			!next_page_url.nil?||!prev_page_url.nil?
 		end
 
+		# Is it the first page ?
+		# @return Boolean
 		def first_page?
 			!prev_page_url if paginated?
 		end
 
+		# Is it the last page ?
+		# @return Boolean
 		def last_page?
 			!next_page_url if paginated?
 		end
 
+		# Get next page feed
+		# @return (see Feed.parse_url)
 		def next_page
 			Feed.parse_url(next_page_url,@browser)
 		end
 
+		# Get previous page feed
+		# @return (see Feed.parse_url)
 		def prev_page
 			Feed.parse_url(prev_page_url,@browser)
 		end
@@ -141,6 +193,7 @@ module OPDS
 		end
 
 		protected
+		# Convert a nokogiri node to String value if not nil
 		def text(t)
 			return t.text unless t.nil?
 			t

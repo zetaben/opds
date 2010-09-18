@@ -1,8 +1,11 @@
 require 'open-uri'
 module OPDS
 	module Support
+		# A link is actually an array composed as :
+		#   [rel, url , title, mimetype, opds:price, opds:currency]
 		class Link < Array
 			include Logging
+			# @return [OPDS::Support::Browser] Browser to use with this link
 			attr_accessor :browser
 
 			def initialize(array,browser=OPDS::Support::Browser.new) 
@@ -13,6 +16,10 @@ module OPDS
 				super array
 			end
 
+			# Will go parsing the resource at this url.
+			# Proxy to Feed.parse_url
+			# @see Feed.parse_url
+			# @return (see Feed.parse_url)
 			def navigate
 			Feed.parse_url(self[1],browser)
 			end
@@ -21,35 +28,45 @@ module OPDS
 				"[#{self.map{|e| (e.is_a?(String) && e.size > 100 ? "#{e[0..98]}...".inspect: e.inspect ) }.join(', ')}]"
 			end
 
-			def url
+			#@return [String] link url
+			def url 
 				self[1]
 			end
 			
+			#@return [String] link rel value
 			def rel
 				self[0]
 			end
 			
+			#@return [String] link title
 			def title
 				self[2]
 			end
 			
+			#@return [String] link mimetype
 			def type
 				self[3]
 			end
 			
+			#@return [String] link opds price
 			def price
 				self[4]
 			end
 			
+			#@return [String] link opds curreny
 			def currency
 				self[5]
 			end
 
 		end
 	
-
+		# Set of links.
+		#
+		# It provides ways to query and filter the set
+		# @todo use a true Set to provide storage
 		class LinkSet 
 			include Enumerable
+			# @param browser (see Feed.parse_url) 
 			def initialize(browser=OPDS::Support::Browser.new)
 				@browser=browser
 				@rel_store=Hash.new
@@ -59,6 +76,9 @@ module OPDS
 				@store=[]
 			end
 
+			# Add a link to the set 
+			# @param k [String] rel value where to add the link
+			# @param v [Array] remainder of link structure
 			def []=(k,v)
 				link=Link.new([k]+v,@browser)
 				@store.push link
@@ -74,64 +94,93 @@ module OPDS
 				
 			end
 
+			# Query the set by rel value
 			def [](k)
 				remap(@rel_store[k])
 			end
-
+			
+			#iterate through the set
 			def each(&block)
 				@store.each(&block)
 			end
 
+			# Push a link to the set 
+			# @param rel (see Link#rel)
+			# @param link (see Link#url)
+			# @param text (see Link#title)
+			# @param price (see Link#price)
+			# @param currency (see Link#currency)
 			def push(rel,link,text=nil,type=nil, price=nil, currency=nil)
 				tab=[link,text,type]
 				tab+=[price.to_f,currency] unless price.nil?
 				self[rel]=tab
 			end
 
+			# Push an existing link to the set 
+			# @param [Link] kink to add 
 			def push_link(link)
 				@store.push link if link.is_a?Link
 			end
 
+			# Find first link url corresponding to the query
+			# @example Query : 
+			#    {:rel => "related" }
 			def link_url(k)
 				ty,v=k.first
 				t=remap(collection(ty)[v])
 				t.first[1] unless t.nil?
 			end
 			
+			# Find first link rel corresponding to the query
+			# @example Query : 
+			#    {:rel => "related" }
 			def link_rel(k)
 				ty,v=k.first
 				t=remap(collection(ty)[v])
 				t.first[0] unless t.nil?
 			end
 
+			# Find first link text corresponding to the query
+			# @example Query : 
+			#    {:rel => "related" }
 			def link_text(k)
 				ty,v=k.first
 				t=remap(collection(ty)[v])
 				t.first[2] unless t.nil?
 			end
 			
+			# Find first link type corresponding to the query
+			# @example Query : 
+			#    {:rel => "related" }
 			def link_type(k)
 				ty,v=k.first
 				t=remap(collection(ty)[v])
 				t.first[3] unless t.nil?
 			end
 
+			# Size of the set 
+			# @return [Integer]
 			def size
 				@store.size
 			end
 
+			# Collection indexed by given type
+			# @param [Symbol] in (:lnik,:rel,:txt,:type)
 			def by(type)
 				Hash[collection(type).map{|k,v| [k,remap(v)]}]
 			end
 
+			#@return [Array] all links
 			def links
 				@lnk_store.keys
 			end
 			
+			#@return [Array] all rels
 			def rels
 				@rel_store.keys
 			end
-			
+		
+			#@return [Array] all titles
 			def texts
 				@txt_store.keys
 			end
@@ -140,10 +189,12 @@ module OPDS
 				@store.inspect
 			end
 
+			#@return [Link] First link in store
 			def first 
 				@store.first
 			end
 			
+			#@return [Link] Last link in store
 			def last
 				@store.last
 			end
@@ -153,6 +204,10 @@ module OPDS
 			end
 
 			protected 
+			#Collection by type.
+			# Will only give the keymap 
+			# @param type (see LinkSet#by)
+			# @see LinkSet#by
 			def collection(type)
 				case type.to_s
 				when 'link' then @lnk_store
@@ -161,7 +216,9 @@ module OPDS
 				when 'type' then @typ_store
 				end
 			end
-
+			# recover links for an index table
+			# @return [Array] Corresponding links
+			# @param [Array] Indexes
 			def remap(tab)
 				return nil if tab.nil? || tab.size==0
 				tab.map{|i| @store[i]}

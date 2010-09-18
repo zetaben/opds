@@ -1,26 +1,50 @@
 module OPDS
+	# Represents a catalog entry
 	class Entry
 		include Logging
+
+		# "Raw" Nokogiri document used while parsing.
+		# It might useful to access atom foreign markup
+		# @return [Nokogiri::XML::Document] Parsed document
 		attr_reader :raw_doc
+		# @return [String] entry title
 		attr_reader :title
+		# @return [String] entry id
 		attr_reader :id
+		# @return [Date] entry updated date
 		attr_reader :updated
+		# @return [Date] entry published date
 		attr_reader :published
+		# @return [String] entry summary
 		attr_reader :summary
+		# @return [Array] entry parsed authors
 		attr_reader :authors
+		# @return [Array] entry parsed contributors
+		attr_reader :contributors
+		# @return [OPDS::Support::LinkSet] Set of links found in the entry
 		attr_reader :links
+		# @return [Hash] Hash of found dublin core metadata found in the entry
+		# @see http://dublincore.org/documents/dcmi-terms/
 		attr_reader :dcmetas
+		# @return [Array] Categories found 
 		attr_reader :categories
+		# @return [String] content found 
 		attr_reader :content
+		# @return [String] entry right
 		attr_reader :rights
+		# @return [String] entry subtitle
 		attr_reader :subtitle
 
-		def initialize(browser=nil)
+		# @param browser (see Feed.parse_url)
+		def initialize(browser=OPDS::Support::Browser.new)
 			@browser=browser
-			@browser||=OPDS::Support::Browser.new
 		end
 
-
+		# Create an entry from a nokogiri fragment 
+		# @param content [Nokogiri::XML::Element] Nokogiri fragment (should be <entry>)
+		# @param namespaces Associated document namespaces
+		# @param browser (see Feed.parse_url)
+		# @return [Entry]
 		def self.from_nokogiri(content,namespaces=nil, browser=nil)
 			z=self.new browser
 			z.instance_variable_set('@raw_doc',content)
@@ -29,7 +53,9 @@ module OPDS
 			z
 		end
 
-
+		# Read the provided document into the entry struct 
+		# @private
+		# @todo really make private
 		def serialize!
 			@namespaces=raw_doc.root.namespaces if @namespaces.nil?
 			@authors=[]
@@ -101,23 +127,29 @@ module OPDS
 
 		end
 
-
+		#First Author
+		# @return [Hash]
 		def author
 			authors.first
 		end
-
+		
+		# Is it a partial atom entry ?
+		# @return [boolean]
 		def partial?
 			links.by(:rel)['alternate'].any? do |l|
 				l[3]=='application/atom+xml'||l[3]=='application/atom+xml;type=entry'
 			end
 		end
-
+		
+		# @return [String] URL to the complete entry
+		# @todo accessor to the complete entry
 		def complete_url
 			links.by(:rel)['alternate'].find do |l|
 				l[3]=='application/atom+xml;type=entry'||l[3]=='application/atom+xml'
 			end unless !partial?
 		end
-
+		
+		# @return [Array] acquisition link subset
 		def acquisition_links
 			rel_start='http://opds-spec.org/acquisition'
 			[*links.by(:rel).reject do |k,_|
