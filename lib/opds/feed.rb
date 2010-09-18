@@ -80,13 +80,14 @@ module OPDS
 				raw_doc.xpath('/xmlns:feed/xmlns:link',raw_doc.root.namespaces).each do |n|
 					text=nil
 					text=n.attributes['title'].value unless n.attributes['title'].nil?
+					type=n.attributes['type'].value unless n.attributes['type'].nil?
 					link=n.attributes['href'].value
 					unless n.attributes['rel'].nil?
 						n.attributes['rel'].value.split.each do |rel|
-							@links.push(rel,link,text)
+							@links.push(rel,link,text,type)
 						end
 					else
-						@links.push(nil,link,text)
+						@links.push(nil,link,text,type)
 					end
 				end
 
