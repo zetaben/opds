@@ -65,16 +65,19 @@ module OPDS
 				super(array,browser)				
 			end
 
+			#@return [String] facet group
 			def facet_group
 				self[6]
 			end
 			
+			#@return [Boolean] is that facet active
 			def active_facet
 				!self[7].nil?
 			end
 
 			alias :active_facet?  :active_facet
 			
+			#@return [Integer] approximate number of entries yield by this facet
 			def count
 				self[8].to_i
 			end
