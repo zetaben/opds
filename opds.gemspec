@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{opds}
-  s.version = "0.2.0"
+  s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Benoit Larroque"]
@@ -34,11 +34,13 @@ Gem::Specification.new do |s|
     "lib/opds/support/logging.rb",
     "opds.gemspec",
     "samples/acquisition.txt",
+    "samples/acquisition_opds1_1.txt",
     "samples/entry.txt",
     "samples/navigation.txt",
     "spec/browser_spec.rb",
     "spec/entry_spec.rb",
     "spec/linkset_spec.rb",
+    "spec/opdsparser_opds_1_1_spec.rb",
     "spec/opdsparser_spec.rb",
     "spec/spec.opts",
     "spec/spec_helper.rb"

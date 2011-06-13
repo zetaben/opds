@@ -85,6 +85,8 @@ module OPDS
 				price=nil
 				currency=nil
 				@namespaces['opds']||='http://opds-spec.org/2010/catalog'
+				types=n.search('.//opds:indirectAcquisition',@namespaces).map{|b| b['type']}
+				type=[type,types].flatten.compact unless types.nil? || types.empty?
 				oprice=n.at('./opds:price',@namespaces)
 				if oprice
 					price=text(oprice)
@@ -151,10 +153,14 @@ module OPDS
 		
 		# @return [Array] acquisition link subset
 		def acquisition_links
+			acq=[]
 			rel_start='http://opds-spec.org/acquisition'
-			[*links.by(:rel).reject do |k,_|
-				k[0,rel_start.size]!=rel_start unless k.nil?
-			end.values]
+			links.by(:rel).each do |k,lnk|
+				if !k.nil? && k[0,rel_start.size]==rel_start 
+					lnk.each {|l| acq.push l}
+				end
+			end
+			acq
 		end
 		
 		def inspect

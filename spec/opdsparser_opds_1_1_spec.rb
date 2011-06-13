@@ -70,6 +70,10 @@ describe OPDS::OPDSParser do
 	it  do 
 		subject.parse(sample(feed_type)).should have_at_least(1).active_facets
 	end
+	
+	it "should have indirect acquisition types" do
+		subject.parse(sample(feed_type)).entries.last.acquisition_links.last.type.size.should == 3
+	end
 		
 
 end
