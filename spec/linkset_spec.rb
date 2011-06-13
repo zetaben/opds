@@ -8,14 +8,15 @@ describe OPDS::Support::LinkSet do
 		subject.push('subsection','http://feedbooks.com/feed','feeds')
 		subject.push('http://opds-spec.org/shelf','http://feedbooks.com/shelf','shelf')
 		subject.push('related','http://feedbooks.com/shelf',nil)
+		subject.push_facet('/sci-fi','Science-Fiction','application/atom+xml','Categories',nil,'600')
 	end
 
 	it do
-		subject.size.should be(6)
+		subject.size.should be(7)
 	end
 	
 	it do
-		subject.map(&:first).size.should be(6)
+		subject.map(&:first).size.should be(7)
 	end
 
 	it "should find 3 subsection" do
@@ -29,6 +30,14 @@ describe OPDS::Support::LinkSet do
 	end
 
 	it "get all text values" do
-		subject.texts.size.should be(6)
+		subject.texts.size.should be(7)
+	end
+
+	it "should have one Facet" do
+		f=subject.find_all{|e| e.class==OPDS::Support::Facet}
+		f.size.should be(1)
+		f.first.facet_group.should =='Categories'
+		f.first.count.should == 600
+		f.first.active_facet.should == false
 	end
 end

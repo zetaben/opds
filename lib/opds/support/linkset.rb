@@ -59,6 +59,27 @@ module OPDS
 			end
 
 		end
+
+		class Facet < Link
+			def initialize(array,browser=OPDS::Support::Browser.new) 
+				super(array,browser)				
+			end
+
+			def facet_group
+				self[6]
+			end
+			
+			def active_facet
+				!self[7].nil?
+			end
+
+			alias :active_facet?  :active_facet
+			
+			def count
+				self[8].to_i
+			end
+
+		end
 	
 		# Set of links.
 		#
@@ -80,7 +101,12 @@ module OPDS
 			# @param k [String] rel value where to add the link
 			# @param v [Array] remainder of link structure
 			def []=(k,v)
+				link=nil
+				if v.size > 6 
+				link=Facet.new([k]+v,@browser)
+				else
 				link=Link.new([k]+v,@browser)
+				end
 				@store.push link
 				i=@store.size-1
 				@rel_store[k]=[] unless @rel_store[k]
@@ -114,6 +140,10 @@ module OPDS
 				tab=[link,text,type]
 				tab+=[price.to_f,currency] unless price.nil?
 				self[rel]=tab
+			end
+
+			def push_facet(link,text=nil,type=nil,facet_group=nil,active_facet=nil,count=nil)
+				self['http://opds-spec.org/facet']=[link,text,type,nil,nil,facet_group,active_facet,count]
 			end
 
 			# Push an existing link to the set 
@@ -165,7 +195,7 @@ module OPDS
 			end
 
 			# Collection indexed by given type
-			# @param [Symbol] in (:lnik,:rel,:txt,:type)
+			# @param [Symbol] in (:link,:rel,:txt,:type)
 			def by(type)
 				Hash[collection(type).map{|k,v| [k,remap(v)]}]
 			end

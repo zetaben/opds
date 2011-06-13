@@ -123,7 +123,18 @@ module OPDS
 					link=n.attributes['href'].value
 					unless n.attributes['rel'].nil?
 						n.attributes['rel'].value.split.each do |rel|
+							if rel=='http://opds-spec.org/facet'
+								group=n.attribute_with_ns('facetGroup','http://opds-spec.org/2010/catalog')
+								group=group.value unless group.nil?
+								active=n.attribute_with_ns('activeFacet','http://opds-spec.org/2010/catalog')
+								active=active.value unless active.nil?
+								count=n.attribute_with_ns('count','http://purl.org/syndication/thread/1.0')
+								count=count.value unless count.nil?
+
+							@links.push_facet(link,text,type,group,active,count)
+							else
 							@links.push(rel,link,text,type)
+							end
 						end
 					else
 						@links.push(nil,link,text,type)
