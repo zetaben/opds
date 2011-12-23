@@ -26,7 +26,7 @@ module OPDS
 			case @sniffed_type
 			when :acquisition then return OPDS::AcquisitionFeed.from_nokogiri(@ret,browser)
 			when :navigation then return OPDS::NavigationFeed.from_nokogiri(@ret,browser)
-			when :entry then return OPDS::Entry.from_nokogiri(@ret,browser)
+			when :entry then return OPDS::Entry.from_nokogiri(@ret,nil,browser)
 			end
 		end
 
