@@ -68,11 +68,11 @@ module OPDS
 			d=text(raw_doc.at('./xmlns:published',@namespaces))
 			@published=DateTime.parse(d) unless d.nil?
 
-			@authors=raw_doc.xpath('./xmlns:author',@namespaces).collect do |auth|
+			@authors=raw_doc.xpath('./xmlns:author',@namespaces).collect do |author|
 				{
-					:name => text(raw_doc.at('./xmlns:author/xmlns:name',@namespaces)),
-					:uri => text(raw_doc.at('./xmlns:author/xmlns:uri',@namespaces)),
-					:email => text(raw_doc.at('./xmlns:author/xmlns:email',@namespaces))
+					:name => text(author.at('./xmlns:name',@namespaces)),
+					:uri => text(author.at('./xmlns:uri',@namespaces)),
+					:email => text(author.at('./xmlns:email',@namespaces))
 				}
 			end
 
