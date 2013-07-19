@@ -1,4 +1,6 @@
 require "open-uri"
+require 'net/http'
+
 module OPDS
 	# Supporting classes 
 	module Support
